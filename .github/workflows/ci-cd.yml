@@ -18,8 +18,24 @@ jobs:
         with:
           node-version: '14'
 
+      - name: Install dependancies
+        run: npm install
+
       - name: Run placeholder tests
         run: echo "Running tests..."  # Replace with actual test command later
 
-      - name: Placeholder deployment
-        run: echo "Deploying to AWS..."
+      - name: Start deployment to AWS
+        run: echo "Deploy to AWS..."
+
+      - name: Set up AWS CLI
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set region us-east-1
+
+      - name: Deploy Infrastructure
+        run: |
+          aws cloudformation deploy 
+          --template-file infrastructure/cloudformation.yml 
+          --stack-name F1InsightsStack 
+          --capabilities CAPABILITY_NAMED_IAM
