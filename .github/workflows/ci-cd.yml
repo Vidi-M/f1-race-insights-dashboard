@@ -1,0 +1,25 @@
+name: Basic CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js (if you're using Node for Lambda)
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Run placeholder tests
+        run: echo "Running tests..."  # Replace with actual test command later
+
+      - name: Placeholder deployment
+        run: echo "Deploying to AWS..."
