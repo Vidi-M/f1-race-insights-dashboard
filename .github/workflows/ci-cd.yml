@@ -3,11 +3,11 @@ name: Deploy Lambda Function to AWS
 on:
   push:
     branches:
-      - dev   # Run workflow on push to main branch
+      - main   # Run workflow on push to main branch
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest 
 
     steps:
       # Step 1: Checkout the repository
