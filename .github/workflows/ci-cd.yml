@@ -26,6 +26,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r lambda/requirements.txt
 
+      - name: Run Unit Tests
+        run: |
+          python -m unittest discover -s tests
+
       # Step 2: Set up AWS CLI
       - name: Set up AWS CLI
         uses: aws-actions/configure-aws-credentials@v1
