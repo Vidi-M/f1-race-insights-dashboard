@@ -48,20 +48,12 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: 'us-east-1'
           
-      - name: Deploy CloudFormation stack
-        id: deploy
-        run: |
-          aws cloudformation deploy \
-            --template-file infrastructure/cloudformation.yml \
-            --stack-name F1RaceInsightsStack \
-            --capabilities CAPABILITY_NAMED_IAM
-
-      - name: Check deployment status
-        if: failure()  # This step runs only if the previous step fails
-        run: |
-          echo "Deployment failed. Fetching error message..."
-          aws cloudformation describe-stack-events --stack-name F1RaceInsightsStack --output text
-          echo "Error Message Fetched, Deleting stack..."
-          aws cloudformation delete-stack --stack-name F1RaceInsightsStack
+        # Deploy to AWS CloudFormation
+      - name: Deploy to AWS CloudFormation
+        uses: aws-actions/aws-cloudformation-github-deploy@v1
+        with:
+          name: F1RaceInsightsStack
+          template: infrastructure/cloudformation.yml
+          no-fail-on-empty-changeset: "1"
 
 
