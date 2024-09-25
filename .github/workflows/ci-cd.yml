@@ -40,6 +40,18 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: 'us-east-1'
 
+      # Step 6: Create the CloudFormation stack
+      - name: Create CloudFormation stack
+        run: |
+          aws cloudformation create-stack \
+            --stack-name F1RaceInsightsStack \
+            --template-body file://infrastructure/cloudformation.yml \
+            --capabilities CAPABILITY_NAMED_IAM \
+            --parameters \
+              ParameterKey=LambdaCodeS3Bucket,ParameterValue=vmistry-f1-dashboard \
+              ParameterKey=LambdaCodeS3Key,ParameterValue=lambda-code.zip
+
+
       # Step 6: Deploy the CloudFormation stack
       - name: Deploy CloudFormation stack
         run: |
