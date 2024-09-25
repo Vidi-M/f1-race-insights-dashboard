@@ -44,7 +44,7 @@ jobs:
       - name: Deploy CloudFormation stack
         run: |
           aws cloudformation deploy \
-            --template-file cloudformation.yml \
+            --template-file infrastructure/cloudformation.yml \
             --stack-name F1RaceInsightsStack \
             --capabilities CAPABILITY_NAMED_IAM \
             --parameter-overrides \
