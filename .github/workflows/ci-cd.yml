@@ -60,7 +60,7 @@ jobs:
         if: failure()  # This step runs only if the previous step fails
         run: |
           echo "Deployment failed. Fetching error message..."
-          aws cloudformation describe-stack-events --stack-name F1RaceInsightsStack --output
+          aws cloudformation describe-stack-events --stack-name F1RaceInsightsStack --output text
           echo "Error Message Fetched, Deleting stack..."
           aws cloudformation delete-stack --stack-name F1RaceInsightsStack
 
