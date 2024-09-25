@@ -3,7 +3,7 @@ Resources:
   
   ### Lambda Function for Data Processing ###
   F1RaceDataLambda:
-    Type: AWS::Lambda::Function
+    Type: AWS::Lambda::Function 
     Properties:
       FunctionName: F1RaceDataProcessor
       Handler: lambda_function.lambda_handler
