@@ -39,8 +39,7 @@ Resources:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
         Uri: !Sub
-          - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${F1RaceDataLambda.Arn}/invocations
-          - { AWS::Region: !Ref AWS::Region }
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${F1RaceDataLambda.Arn}/invocations
 
   ### Lambda Permission to be Invoked by API Gateway ###
   F1LambdaInvokePermission:
