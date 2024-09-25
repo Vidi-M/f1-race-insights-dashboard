@@ -3,7 +3,7 @@ name: Deploy Lambda Function to AWS
 on:
   push:
     branches:
-      - main   # Run workflow on push to main branch
+      - dev   # Run workflow on push to main branch
 
 jobs:
   deploy:
@@ -32,7 +32,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: 'us-east-1'
+          aws-region: 'eu-west-2'
 
       # Step 4: Package Lambda code
       - name: Zip Lambda code
@@ -46,14 +46,14 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: 'us-east-1'
-
-      # Step 4: Deploy CloudFormation stack
-      - name: Deploy CloudFormation stack
-        run: |
-          aws cloudformation deploy \
-            --template-file infrastructure/cloudformation.yml \
-            --stack-name F1RaceInsightsStack \
-            --capabilities CAPABILITY_NAMED_IAM
+          AWS_REGION: 'eu-west-2'
+          
+        # Deploy to AWS CloudFormation
+      - name: Deploy to AWS CloudFormation
+        uses: aws-actions/aws-cloudformation-github-deploy@v1
+        with:
+          name: F1RaceInsightsStack
+          template: infrastructure/cloudformation.yml
+          no-fail-on-empty-changeset: "1"
 
 
