@@ -1,41 +1,56 @@
-name: Basic CI Pipeline
+name: Deploy Lambda Function to AWS
 
 on:
   push:
     branches:
-      - main
+      - main   # Run workflow on push to main branch
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout the repository
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Node.js (if you're using Node for Lambda)
-        uses: actions/setup-node@v2
+      # Step 2: Set up Python environment (adjust the version if needed)
+      - name: Set up Python
+        uses: actions/setup-python@v2
         with:
-          node-version: '14'
+          python-version: '3.8'
 
-      - name: Install dependancies
-        run: npm install
-
-      - name: Run placeholder tests
-        run: echo "Running tests..."  # Replace with actual test command later
-
-      - name: Start deployment to AWS
-        run: echo "Deploy to AWS..."
-
-      - name: Set up AWS CLI
+      # Step 3: Install dependencies
+      - name: Install Python dependencies
         run: |
-          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws configure set region us-east-1
+          python -m pip install --upgrade pip
+          pip install -r lambda/requirements.txt
 
-      - name: Deploy Infrastructure
+      # Step 4: Package Lambda code
+      - name: Zip Lambda code
         run: |
-          aws cloudformation deploy 
-          --template-file infrastructure/cloudformation.yml 
-          --stack-name F1InsightsStack 
-          --capabilities CAPABILITY_NAMED_IAM
+          cd lambda
+          zip -r ../lambda-code.zip .   # Zips the contents of the lambda folder
+
+      # Step 5: Upload the Lambda package to S3
+      - name: Upload Lambda code to S3
+        run: aws s3 cp lambda-code.zip s3://vmistry-f1-dashboard/lambda-code.zip
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: 'us-east-1'
+
+      # Step 6: Deploy the CloudFormation stack
+      - name: Deploy CloudFormation stack
+        run: |
+          aws cloudformation deploy \
+            --template-file cloudformation.yml \
+            --stack-name F1RaceInsightsStack \
+            --capabilities CAPABILITY_NAMED_IAM \
+            --parameter-overrides \
+              LambdaCodeS3Bucket=vmistry-f1-dashboard \
+              LambdaCodeS3Key=lambda-code.zip
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: 'us-east-1'
