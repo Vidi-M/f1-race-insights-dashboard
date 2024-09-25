@@ -41,28 +41,31 @@ jobs:
           AWS_REGION: 'us-east-1'
 
       # Step 6: Create the CloudFormation stack
-      - name: Create CloudFormation stack
-        run: |
-          aws cloudformation create-stack \
-            --stack-name F1RaceInsightsStack \
-            --template-body file://infrastructure/cloudformation.yml \
-            --capabilities CAPABILITY_NAMED_IAM \
-            --parameters \
-              ParameterKey=LambdaCodeS3Bucket,ParameterValue=vmistry-f1-dashboard \
-              ParameterKey=LambdaCodeS3Key,ParameterValue=lambda-code.zip
-
-
-      # Step 6: Deploy the CloudFormation stack
-      - name: Deploy CloudFormation stack
-        run: |
-          aws cloudformation deploy \
-            --template-file infrastructure/cloudformation.yml \
-            --stack-name F1RaceInsightsStack \
-            --capabilities CAPABILITY_NAMED_IAM \
-            --parameter-overrides \
-              LambdaCodeS3Bucket=vmistry-f1-dashboard \
-              LambdaCodeS3Key=lambda-code.zip
+      - name: Deploy CloudFormation Stack
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: 'us-east-1'
+          AWS_REGION: us-east-1
+        run: |
+          STACK_NAME="F1RaceInsightsStack"
+  
+          # Check if the CloudFormation stack exists
+          if aws cloudformation describe-stacks --stack-name $STACK_NAME; then
+              echo "Stack exists, updating..."
+              aws cloudformation deploy \
+                --template-file infrastructure/cloudformation.yml \
+                --stack-name $STACK_NAME \
+                --capabilities CAPABILITY_NAMED_IAM \
+                --parameter-overrides \
+                  LambdaCodeS3Bucket=vmistry-f1-dashboard \
+                  LambdaCodeS3Key=lambda-code.zip
+          else
+              echo "Stack does not exist, creating..."
+              aws cloudformation create-stack \
+                --stack-name $STACK_NAME \
+                --template-body file://infrastructure/cloudformation.yml \
+                --capabilities CAPABILITY_NAMED_IAM \
+                --parameters \
+                  ParameterKey=LambdaCodeS3Bucket,ParameterValue=vmistry-f1-dashboard \
+                  ParameterKey=LambdaCodeS3Key,ParameterValue=lambda-code.zip
+          fi
