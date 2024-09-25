@@ -49,18 +49,18 @@ jobs:
           AWS_REGION: 'us-east-1'
           
       - name: Deploy CloudFormation stack
+        id: deploy
         run: |
-         if ! aws cloudformation deploy \
-          --template-file infrastructure/cloudformation.yml \
-          --stack-name F1RaceInsightsStack \
-          --capabilities CAPABILITY_NAMED_IAM; then
-            echo "Deployment failed. Fetching error message..."
-            aws cloudformation describe-stack-events --stack-name F1RaceInsightsStack --query "StackEvents[?starts_with(ResourceStatus, 'FAILED')].{Status: ResourceStatus, Reason: ResourceStatusReason}" --output table
-            exit 1  # Exit the script with a non-zero status
-         fi
-        
-          echo "Deployment succeeded!"
+          aws cloudformation deploy \
+            --template-file infrastructure/cloudformation.yml \
+            --stack-name F1RaceInsightsStack \
+            --capabilities CAPABILITY_NAMED_IAM
 
-     
+      - name: Check deployment status
+        if: failure()  # This step runs only if the previous step fails
+        run: |
+          echo "Deployment failed. Fetching error message..."
+          aws cloudformation describe-stack-events --stack-name F1RaceInsightsStack --query "StackEvents[?starts_with(ResourceStatus, 'FAILED')].{Status: ResourceStatus, Reason: ResourceStatusReason}" --output table
+          echo "Error Message Fetched"
 
 
