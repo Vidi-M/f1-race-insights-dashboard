@@ -47,35 +47,19 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: 'us-east-1'
-
-      - name: Check if CloudFormation stack exists
-        id: stack_check
+          
+      - name: Deploy CloudFormation stack
         run: |
-          STACK_NAME="F1RaceInsightsStack"
-          if aws cloudformation describe-stacks --stack-name $STACK_NAME; then
-            echo "Stack $STACK_NAME exists."
-            echo "::set-output name=stack_exists::true"
-          else
-            echo "Stack $STACK_NAME does not exist."
-            echo "::set-output name=stack_exists::false"
-          fi
-
-      - name: Deploy or Update CloudFormation stack
-        run: |
-          STACK_NAME="F1RaceInsightsStack"
-          if [[ "${{ steps.stack_check.outputs.stack_exists }}" == "true" ]]; then
-            echo "Updating stack $STACK_NAME."
-            aws cloudformation update-stack \
-              --stack-name $STACK_NAME \
-              --template-file infrastructure/cloudformation.yml \
-              --capabilities CAPABILITY_NAMED_IAM
-          else
-            echo "Creating stack $STACK_NAME."
-            aws cloudformation create-stack \
-              --stack-name $STACK_NAME \
-              --template-file infrastructure/cloudformation.yml \
-              --capabilities CAPABILITY_NAMED_IAM
-          fi
+         if ! aws cloudformation deploy \
+          --template-file infrastructure/cloudformation.yml \
+          --stack-name F1RaceInsightsStack \
+          --capabilities CAPABILITY_NAMED_IAM; then
+            echo "Deployment failed. Fetching error message..."
+            aws cloudformation describe-stack-events --stack-name F1RaceInsightsStack --query "StackEvents[?starts_with(ResourceStatus, 'FAILED')].{Status: ResourceStatus, Reason: ResourceStatusReason}" --output table
+            exit 1  # Exit the script with a non-zero status
+         fi
+        
+          echo "Deployment succeeded!"
 
      
 
