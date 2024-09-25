@@ -1,0 +1,52 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  
+  ### Lambda Function for Data Processing ###
+  F1RaceDataLambda:
+    Type: AWS::Lambda::Function 
+    Properties:
+      FunctionName: F1RaceDataProcessor
+      Handler: lambda_function.lambda_handler
+      Role: arn:aws:iam::024848452880:role/Lambda_Execution_Role
+      Code:
+        S3Bucket: vmistry-f1-dashboard   # Replace with your S3 bucket name
+        S3Key: lambda-code.zip                   # The uploaded Lambda code zip file
+      Runtime: python3.8
+      Timeout: 30
+
+  ### API Gateway for Exposing the Lambda as an API ###
+  F1ApiGateway:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: F1RaceInsightsAPI
+
+  ### API Gateway Resource and Methods ###
+  F1ApiGatewayResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt F1ApiGateway.RootResourceId
+      PathPart: race
+      RestApiId: !Ref F1ApiGateway
+
+  F1ApiGatewayMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: GET
+      ResourceId: !Ref F1ApiGatewayResource
+      RestApiId: !Ref F1ApiGateway
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${F1RaceDataLambda.Arn}/invocations
+
+  ### Lambda Permission to be Invoked by API Gateway ###
+  F1LambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref F1RaceDataLambda
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub
+        arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${F1ApiGateway}/*/GET/race
