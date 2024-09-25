@@ -3,7 +3,7 @@ name: Deploy Lambda Function to AWS
 on:
   push:
     branches:
-      - main   # Run workflow on push to main branch
+      - dev   # Run workflow on push to main branch
 
 jobs:
   deploy:
@@ -48,12 +48,35 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: 'us-east-1'
 
-      # Step 4: Deploy CloudFormation stack
-      - name: Deploy CloudFormation stack
+      - name: Check if CloudFormation stack exists
+        id: stack_check
         run: |
-          aws cloudformation deploy \
-            --template-file infrastructure/cloudformation.yml \
-            --stack-name F1RaceInsightsStack \
-            --capabilities CAPABILITY_NAMED_IAM
+          STACK_NAME="F1RaceInsightsStack"
+          if aws cloudformation describe-stacks --stack-name $STACK_NAME; then
+            echo "Stack $STACK_NAME exists."
+            echo "::set-output name=stack_exists::true"
+          else
+            echo "Stack $STACK_NAME does not exist."
+            echo "::set-output name=stack_exists::false"
+          fi
+
+      - name: Deploy or Update CloudFormation stack
+        run: |
+          STACK_NAME="F1RaceInsightsStack"
+          if [[ "${{ steps.stack_check.outputs.stack_exists }}" == "true" ]]; then
+            echo "Updating stack $STACK_NAME."
+            aws cloudformation update-stack \
+              --stack-name $STACK_NAME \
+              --template-file infrastructure/cloudformation.yml \
+              --capabilities CAPABILITY_NAMED_IAM
+          else
+            echo "Creating stack $STACK_NAME."
+            aws cloudformation create-stack \
+              --stack-name $STACK_NAME \
+              --template-file infrastructure/cloudformation.yml \
+              --capabilities CAPABILITY_NAMED_IAM
+          fi
+
+     
 
 
