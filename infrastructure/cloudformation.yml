@@ -51,12 +51,5 @@ Resources:
         Uri: !Sub
           arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${F1RaceDataLambda.Arn}/invocations
 
-  F1ApiGatewayMethodResponse:
-  Type: AWS::ApiGateway::MethodResponse
-  Properties:
-    StatusCode: 200
-    ResponseParameters:
-      method.response.header.Access-Control-Allow-Origin: "'*'"
-
 
   
