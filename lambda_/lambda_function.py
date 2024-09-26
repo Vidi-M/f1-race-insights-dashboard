@@ -1,4 +1,7 @@
 import json
+import sys
+sys.path.append('./python')  # Adjust the path as necessary
+
 import fastf1
 
 #Simple code to check if it is working
