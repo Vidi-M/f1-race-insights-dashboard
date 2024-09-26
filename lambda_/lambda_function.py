@@ -20,7 +20,18 @@ def lambda_handler(event, context):
         abbreviation_value = abbreviation.values[0]  # Get the first value if it's a Series
     
     # Return the lap data as a JSON response
-    return {
+    response = {
         'statusCode': 200,
-        'body': json.dumps(abbreviation_value)  # Now this should be serializable
+        'body': json.dumps({
+            'message': 'Successfully processed the request!',
+            'data': {abbreviation_value}  # You can add the actual response data here
+        }),
+        'headers': {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',  # Allow all origins for CORS
+            'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',  # Allow the necessary methods
+            'Access-Control-Allow-Headers': 'Content-Type'  # Allow Content-Type header
+        }
     }
+
+    return response
