@@ -19,13 +19,15 @@ def lambda_handler(event, context):
     else:
         abbreviation_value = abbreviation.values[0]  # Get the first value if it's a Series
     
-    # Return the order of driver numbers as a JSON response
+    # Return the lap data as a JSON response
+    # return {
+    #     'statusCode': 200,
+    #     'body': json.dumps(abbreviation_value)  # Now this should be serializable
+    # }
+    
     response = {
         'statusCode': 200,
-        'body': json.dumps({
-            'message': 'Successfully processed the request!',
-            'data': {abbreviation_value}  # You can add the actual response data here
-        }),
+        'body': json.dumps(abbreviation_value),
         'headers': {
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*',  # Allow all origins for CORS
@@ -33,5 +35,6 @@ def lambda_handler(event, context):
             'Access-Control-Allow-Headers': 'Content-Type'  # Allow Content-Type header
         }
     }
+
 
     return response
