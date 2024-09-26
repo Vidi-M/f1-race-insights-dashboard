@@ -19,7 +19,7 @@ def lambda_handler(event, context):
     else:
         abbreviation_value = abbreviation.values[0]  # Get the first value if it's a Series
     
-    # Return the lap data as a JSON response
+    # Return the order of driver numbers as a JSON response
     response = {
         'statusCode': 200,
         'body': json.dumps({
