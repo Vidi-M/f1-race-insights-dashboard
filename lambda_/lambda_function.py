@@ -35,6 +35,6 @@ def lambda_handler(event, context):
             'Access-Control-Allow-Headers': 'Content-Type'  # Allow Content-Type header
         }
     }
-
-
+    print("hello")
+    print(abbreviation_value)
     return response
