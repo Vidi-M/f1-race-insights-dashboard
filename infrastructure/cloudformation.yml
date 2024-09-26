@@ -10,7 +10,7 @@ Resources:
       Role: arn:aws:iam::024848452880:role/Lambda_Execution_Role
       Code:
         S3Bucket: vmistry-f1-dashboard   # Replace with your S3 bucket name
-        S3Key: lambda-code.zip                   # The uploaded Lambda code zip file
+        S3Key: lambda-code.zip                  # The uploaded Lambda code zip file
       Runtime: python3.8
       Timeout: 30
 
