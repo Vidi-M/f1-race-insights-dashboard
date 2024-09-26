@@ -24,8 +24,7 @@ jobs:
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          mkdir -p lambda_/python
-          pip install --target=lambda_/python -r lambda_/requirements.txt
+          pip install -r lambda_/requirements.txt
 
       - name: Run Unit Tests
         run: |
